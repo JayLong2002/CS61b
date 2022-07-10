@@ -1,5 +1,7 @@
 // TODO: Make sure to make this class a part of the synthesizer package
 package synthesizer;
+import org.junit.Test;
+
 import java.util.Iterator;
 
 //TODO: Make sure to make this class and all of its methods public
@@ -33,6 +35,7 @@ public class ArrayRingBuffer<T>  extends AbstractBoundedQueue<T>{
      */
     public void enqueue(T x) {
         // TODO: Enqueue the item. Don't forget to increase fillCount and update last.
+        if(isFull()){throw new RuntimeException("Ring Buffer Overflow");}
             fillCount = fillCount + 1;
             rb[last] = x;
             last = resize(last);
@@ -44,7 +47,8 @@ public class ArrayRingBuffer<T>  extends AbstractBoundedQueue<T>{
      * covered Monday.
      */
     public T dequeue() {
-        // TODO: Dequeue the first item. Don't forget to decrease fillCount and update 
+        // TODO: Dequeue the first item. Don't forget to decrease fillCount and update
+        if(isEmpty()){throw new RuntimeException("Ring Buffer Underflow");}
         fillCount = fillCount - 1;
         T rv = rb[first];
         first = resize(first);
@@ -68,5 +72,35 @@ public class ArrayRingBuffer<T>  extends AbstractBoundedQueue<T>{
       return rb[first];
     }
 
-    // TODO: When you get to part 5, implement the needed code to support iteration.
+    @Override
+    public Iterator<T> iterator() {
+        return new ringBufferIterator<T>();
+    }
+
+    private class ringBufferIterator<T> implements Iterator<T>{
+        private int ptr;
+
+        public ringBufferIterator() {
+            ptr = first;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if(ptr == last ){return false;}
+            else {
+                return true;
+            }
+        }
+
+        @Override
+        public T next() {
+            int x = ptr;
+            ptr = resize(ptr);
+            return (T) rb[x];
+        }
+    }
+
+
+
+
 }
